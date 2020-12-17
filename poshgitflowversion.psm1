@@ -9,6 +9,7 @@ function Set-Branch {
     process {
         Write-Host "git checkout $name" -ForegroundColor Green
         git checkout -q $name
+        git pull --rebase -q
     }
 }
 
@@ -139,20 +140,29 @@ function Start-Release {
     [cmdletbinding()]
     param
     (
-        [Parameter(Mandatory=$false)][switch]$majorVersion
+        [Parameter(Mandatory=$false)][switch]$majorVersion,
+        [Parameter(Mandatory=$false)][switch]$useDate
     )
     process { 
         Set-Branch $m
         $version = (gitversion | convertFrom-json)
         
-        if($majorVersion) {
-            $major = [int]$version.Major + 1
-            $minor = [int]$version.Minor
+        if ($useDate) {
+            $tday = Get-Date
+            $major = "{0}{1:00}" -f $tday.Year,$tday.Month
+            $minor = $tday.Day
+            $patch = 0
         } else {
-            $major = [int]$version.Major
-            $minor = [int]$version.Minor + 1
+            if($majorVersion) {
+                $major = [int]$version.Major + 1
+                $minor = 0
+                $patch = 0
+            } else {
+                $major = [int]$version.Major
+                $minor = [int]$version.Minor
+                $patch = [int]$version.Patch
+            }
         }
-        $patch = [int]$version.Patch
         $name = "release/$major`.$minor`.$patch"
 
         Write-Host "Starting new $name" -ForegroundColor Green
