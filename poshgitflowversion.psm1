@@ -124,7 +124,7 @@ function Update-BranchFrom {
         }
 
         Write-Host "git fetch latest"
-        git fetch origin $branch:$branch
+        git fetch origin $branch`:$branch
 
         if ($rebase) {
             Write-Host "git rebase $branch" -ForegroundColor Green
