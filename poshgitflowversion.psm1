@@ -110,7 +110,9 @@ function Update-BranchFrom {
     )
     process {
         if ($branch -eq $null) {
+            $currentBranch = (git branch --show-current)
             $names = $currentBranch -split "/"
+            Write-Host "Currently in $($names[0])"
             if ($names[0] -eq $h) {
                 $branch = $m
             } elseif ($names[0] -eq $f) {
@@ -129,6 +131,10 @@ function Update-BranchFrom {
         if ($rebase) {
             Write-Host "git rebase $branch" -ForegroundColor Green
             git rebase $branch
+
+            Write-Host "Will force push..." -ForegroundColor Red
+            Pause
+            git push -f
         }
         else {
             if ($noff) {
@@ -216,10 +222,9 @@ function Complete-HotFix {
         $tag = ($hotfixBranch -split "/")[1]
         New-Tag $tag
 
-        Write-Host "Will push..."
+        Write-Host "Will push..." -ForegroundColor Red
         Pause
-        Write-Host "Continuing..."
-        #git push --follow-tags
+        git push --follow-tags
     }
 }
 
@@ -293,10 +298,9 @@ function Complete-Release {
         Update-BranchFrom $m -merge
         Remove-Branch $releaseBranch
 
-        Write-Host "Will push all..."
+        Write-Host "Will push all..." -ForegroundColor Red
         Pause
-        Write-Host "Continuing..."
-        #git push --all --follow-tags
+        git push --all --follow-tags
     }
 }
 
