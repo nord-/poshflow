@@ -130,11 +130,15 @@ function Update-BranchFrom {
 
         if ($rebase) {
             Write-Host "git rebase $branch" -ForegroundColor Green
-            git rebase $branch
-
-            Write-Host "Will force push..." -ForegroundColor Red
-            Pause
-            git push -f
+            $out = cmd /c "git rebase $branch" 2>&1 | % ToString            
+            if ($out -match "error") {
+                $out | Write-Host -ForegroundColor Red
+            } else {
+                $out | Write-Host
+                Write-Host "Will force push..." -ForegroundColor Red
+                Pause
+                git push -f
+            }
         }
         else {
             if ($noff) {
