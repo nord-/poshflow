@@ -1,5 +1,8 @@
 $m = "master"
 $d = "develop"
+$h = "hotfix"
+$r = "release"
+$f = "feature"
 
 Function Pause ($Message = "Press any key to continue . . . ") {
     If ($psISE) {
@@ -106,6 +109,23 @@ function Update-BranchFrom {
         [Parameter(ParameterSetName = "merge", Position = 2)][switch]$noff
     )
     process {
+        if ($branch -eq $null) {
+            $names = $currentBranch -split "/"
+            if ($names[0] -eq $h) {
+                $branch = $m
+            } elseif ($names[0] -eq $f) {
+                $branch = $d
+            } elseif ($names[0] -eq $r) {
+                $branch = $d
+            } else {
+                Write-Host "You need to provide a branch name to update from, or be in feature-, release- or hotfix-branch."
+                return
+            }
+        }
+
+        Write-Host "git fetch latest"
+        git fetch origin $branch:$branch
+
         if ($rebase) {
             Write-Host "git rebase $branch" -ForegroundColor Green
             git rebase $branch
@@ -147,8 +167,8 @@ function Start-Feature {
     )
     process {
         Write-Host "Starting new feature $name" -ForegroundColor Green
-        $name = $name -replace "feature/", ""
-        git checkout -q -b "feature/$name" $d
+        $name = $name -replace "$f/", ""
+        git checkout -q -b "$f/$name" $d
         return $name
     }
 }
@@ -164,12 +184,12 @@ function Start-HotFix {
         $major = [int]$version.Major
         $minor = [int]$version.Minor
         $patch = [int]$version.Patch + 1
-        $name = "hotfix/$major`.$minor`.$patch"
+        $name = "$h/$major`.$minor`.$patch"
 
         Write-Host "Starting new $name" -ForegroundColor Green
         git checkout -q -b $name $m
 
-        return "hotfix/$major`.$minor`.$patch"
+        return "$h/$major`.$minor`.$patch"
     }
 }
 
@@ -183,11 +203,11 @@ function Complete-HotFix {
         if ($hotfixBranch -eq $null) {
             $currentBranch = (git branch --show-current)
             $names = $currentBranch -split "/"
-            if ($names[0] -eq "hotfix") {
+            if ($names[0] -eq $h) {
                 $hotfixBranch = $currentBranch
             }
         } elseif (($hotfixBranch -split "/")[1] -eq $null) {
-            $hotfixBranch = "hotfix/$hotfixBranch" 
+            $hotfixBranch = "$h/$hotfixBranch" 
         }
 
         Set-Branch $m
@@ -235,7 +255,7 @@ function Start-Release {
                 $patch = [int]$version.Patch
             }
         }
-        $name = "release/$major`.$minor`.$patch"
+        $name = "$r/$major`.$minor`.$patch"
 
         Write-Host "Starting new $name" -ForegroundColor Green
         git checkout -q -b $name $d
@@ -253,7 +273,7 @@ function Complete-Release {
         if ($releaseBranch -eq $null) {
             $currentBranch = (git branch --show-current)
             $names = $currentBranch -split "/"
-            if ($names[0] -eq "release") {
+            if ($names[0] -eq $r) {
                 $releaseBranch = $currentBranch
             }
         }
@@ -263,7 +283,7 @@ function Complete-Release {
         $name = ($releaseBranch -split "/")[1]
         if ($name -eq $null) {
             $name = $releaseBranch
-            $releaseBranch = "release/$releaseBranch"
+            $releaseBranch = "$r/$releaseBranch"
         }
 
         Update-BranchFrom $releaseBranch -merge -noff
