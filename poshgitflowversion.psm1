@@ -203,7 +203,7 @@ function Start-HotFix {
     }
 }
 
-function Complete-HotFix {
+function Complete-HotFix {    
     [cmdletbinding()]
     param
     (
@@ -222,6 +222,9 @@ function Complete-HotFix {
 
         Set-Branch $m
         Update-BranchFrom $hotfixBranch -merge -noff
+        Set-Branch $d
+        Update-BranchFrom $hotfixBranch -merge -noff
+
         Remove-Branch $hotfixBranch
         $tag = ($hotfixBranch -split "/")[1]
         New-Tag $tag
