@@ -182,8 +182,9 @@ function Complete-HotFix {
         New-Tag $tag
 
         Write-Host "Will push..." -ForegroundColor Red
-        Pause
-        git push --follow-tags
+        Pause        
+        git push --follow-tags origin $m
+        git push --follow-tags origin $d
     }
 }
 
