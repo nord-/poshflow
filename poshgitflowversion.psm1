@@ -4,6 +4,8 @@ $h = "hotfix"
 $r = "release"
 $f = "feature"
 
+Import-Module (Join-Path $PSScriptRoot "Pause.psm1")
+
 function Set-Branch {
     [cmdletbinding()]
     param(
