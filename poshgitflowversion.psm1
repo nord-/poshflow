@@ -61,7 +61,7 @@ function Update-BranchFrom {
         [Parameter(ParameterSetName = "merge", Position = 2)][switch]$noff
     )
     process {
-        if ($branch -eq $null) {
+        if ($null -eq $branch) {
             $currentBranch = (git branch --show-current)
             $names = $currentBranch -split "/"
             Write-Host "Currently in $($names[0])"
@@ -162,13 +162,13 @@ function Complete-HotFix {
         [Parameter(Mandatory=$false)]$hotfixBranch
     )
     process { 
-        if ($hotfixBranch -eq $null) {
+        if ($null -eq $hotfixBranch) {
             $currentBranch = (git branch --show-current)
             $names = $currentBranch -split "/"
             if ($names[0] -eq $h) {
                 $hotfixBranch = $currentBranch
             }
-        } elseif (($hotfixBranch -split "/")[1] -eq $null) {
+        } elseif ($null -eq ($hotfixBranch -split "/")[1]) {
             $hotfixBranch = "$h/$hotfixBranch" 
         }
 
@@ -234,7 +234,7 @@ function Complete-Release {
         [Parameter(Mandatory=$false)]$releaseBranch
     ) 
     process { 
-        if ($releaseBranch -eq $null) {
+        if ($null -eq $releaseBranch) {
             $currentBranch = (git branch --show-current)
             $names = $currentBranch -split "/"
             if ($names[0] -eq $r) {
@@ -245,7 +245,7 @@ function Complete-Release {
         Set-Branch $m
 
         $name = ($releaseBranch -split "/")[1]
-        if ($name -eq $null) {
+        if ($null -eq $name) {
             $name = $releaseBranch
             $releaseBranch = "$r/$releaseBranch"
         }
