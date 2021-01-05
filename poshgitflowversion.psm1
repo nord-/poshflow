@@ -174,17 +174,19 @@ function Complete-HotFix {
 
         Set-Branch $m
         Update-BranchFrom $hotfixBranch -merge -noff
+
+        $tag = ($hotfixBranch -split "/")[1]
+        New-Tag $tag
+
         Set-Branch $d
         Update-BranchFrom $hotfixBranch -merge -noff
 
         Remove-Branch $hotfixBranch
-        $tag = ($hotfixBranch -split "/")[1]
-        New-Tag $tag
 
         Write-Host "Will push..." -ForegroundColor Red
         Pause        
         git push --follow-tags origin $m
-        git push --follow-tags origin $d
+        git push origin $d
     }
 }
 
@@ -255,12 +257,13 @@ function Complete-Release {
         New-Tag $name
 
         Set-Branch $d
-        Update-BranchFrom $m -merge
+        Update-BranchFrom $m -merge -noff
         Remove-Branch $releaseBranch
 
         Write-Host "Will push all..." -ForegroundColor Red
         Pause
-        git push --all --follow-tags
+        git push --follow-tags origin $m
+        git push origin $d
     }
 }
 
