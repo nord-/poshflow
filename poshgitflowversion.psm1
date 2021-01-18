@@ -137,6 +137,31 @@ function Start-Feature {
     }
 }
 
+function Update-Feature {
+    [CmdletBinding()]
+    param (
+        [Parameter()][string]$name
+    )
+    
+    process {
+        if ('' -eq $name) {
+            $currentBranch = (git branch --show-current)
+            $names = $currentBranch -split "/"
+
+            if ($names[0] -eq $f) {
+                $name = $names[1]
+            } else {
+                Write-Host "Missing feature name..."
+                return
+            }
+        }
+
+        Write-Host "Rebasing feature $name"
+        git checkout -q "$f/$name"
+        Update-BranchFrom $d -rebase
+    }
+}
+
 function Start-HotFix {
     process {
         Set-Branch $m
@@ -270,4 +295,4 @@ function Complete-Release {
 }
 
 Export-ModuleMember -Variable *
-Export-ModuleMember -Function Complete-HotFix,Complete-Release,New-Tag,Remove-Branch,Reset-Repo,Resume-Rebase,Set-Branch,Start-Feature,Start-HotFix,Start-Release,Test-Rebase,Update-BranchFrom
+Export-ModuleMember -Function Complete-HotFix,Complete-Release,New-Tag,Remove-Branch,Reset-Repo,Resume-Rebase,Set-Branch,Start-Feature,Start-HotFix,Start-Release,Test-Rebase,Update-BranchFrom,Update-Feature
