@@ -113,8 +113,8 @@ function New-Tag  {
         [Parameter(Mandatory=$true)]$tag
     )
     process {
-        Write-Host "git tag -a v$tag -m version v$tag" -ForegroundColor Green
-        git tag -a "v$tag" -m "version v$tag" --force
+        Write-Host "git tag -a $tag -m version $tag" -ForegroundColor Green
+        git tag -a "$tag" -m "Version $tag" --force
     }
 }
 
@@ -236,7 +236,7 @@ function Start-Release {
         if ($useDate) {
             $tday = Get-Date
             $major = "{0}{1:00}" -f $tday.Year,$tday.Month
-            $minor = $tday.Day
+            $minor = "{0:00}" -f $tday.Day
             $patch = 0
         } else {
             if($majorVersion) {
